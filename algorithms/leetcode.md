@@ -284,6 +284,7 @@ public double findMedianSortedArrays(int[] nums1, int[] nums2) {
         while (iMin <= iMax) {
             int i = (iMin + iMax) / 2;
             int j = halfLen - i;
+            // i和j分别是两个数组的所求中间数。
             
             if(i < iMax && nums2[j-1] > nums1[i]) {
                 // 这时候i小了
@@ -389,3 +390,166 @@ Input: nums = [-1,0,1,2,-1,-4]
 Output: [[-1,-1,2],[-1,0,1]]
 ```
 
+### code1
+```java
+class Solution {
+    public List<List<Integer>> threeSum(int[] nums) {
+        Arrays.sort(nums);  
+        /*这个为什么要sort？这是为了后面防止出现重复的
+        当3sum的时候，最优时间复杂度n^2，sort只需要nlogn，
+        所以时间复杂度是合理的。
+        */
+        
+        List<List<Integer>> res = new LinkedList<> ();
+        if(nums.length<3) return res;
+        for (int i = 0; i < nums.length; i++) {
+            // 对每一个元素的负数使用2sum
+            if(i == 0 || (i > 0 & nums[i] != nums[i-1])) {
+                // 这个判断条件避开了重复
+                int low = i+1, hi = nums.length-1, sum = 0 - nums[i];
+                
+                while (low < hi) {
+                    // 开始2sum
+                    if (nums[low] + nums[hi] == sum){
+                        res.add(Arrays.asList(nums[i], nums[low], nums[hi]));
+                        while (low < hi && nums[low] == nums[low+1]) low ++;
+                        while (low < hi && nums[hi-1] == nums[hi]) hi --;
+                        // 这两个while也是为了去除出现重复的可能
+                    } else if (nums[low] < nums[hi]) low ++;
+                    else hi --;
+                } 
+            }
+        }
+        
+        return res;
+        
+        
+    }
+}
+```
+时间复杂度$n^2$,空间复杂度依赖于sort的空间复杂度，估计是$n$。
+
+## 16 3 sum closest
+
+### question
+
+Given an array nums of n integers and an integer target, find three integers in nums such that the sum is closest to target. Return the sum of the three integers. You may assume that each input would have exactly one solution.
+
+### example
+
+```
+Input: nums = [-1,2,1,-4], target = 1
+Output: 2
+Explanation: The sum that is closest to the target is 2. (-1 + 2 + 1 = 2).
+```
+
+### code
+
+```java
+class Solution {
+    public int threeSumClosest(int[] nums, int target) {
+        int res = nums[0] + nums[1] + nums[2];
+        Arrays.sort(nums); //sort 是为了后续2sum的方便
+        
+        for (int i=0; i < nums.length; i++) {
+            // 对每一个元素使用2sum，看是否接近
+            int low = i + 1, high = nums.length - 1, sum = target - nums[i];
+            
+            while (low < high) {
+                int tmp = nums[low] + nums[high];
+                if (tmp == sum) return target;
+                else if (tmp < sum) low += 1;
+                else high -= 1;
+                
+                if (Math.abs(target - nums[i] - tmp) < Math.abs(target -res)) res = tmp + nums[i];
+            }
+        }
+        
+        return res;
+        
+    }
+}
+```
+时间复杂度$n^2$,空间复杂度依赖于sort的空间复杂度，估计是$n$。
+
+## 18 4 sum
+
+### question
+
+Given an array nums of n integers, return an array of all the unique quadruplets [nums[a], nums[b], nums[c], nums[d]] such that:
+```
+0 <= a, b, c, d < n
+a, b, c, and d are distinct.
+nums[a] + nums[b] + nums[c] + nums[d] == target
+```
+You may return the answer in any order.
+
+此问题可以理解为n-sum的一般形式，该如何处理，递归下去。
+
+### example
+
+```
+Input: nums = [1,0,-1,0,-2,2], target = 0
+Output: [[-2,-1,1,2],[-2,0,0,2],[-1,0,0,1]]
+```
+
+### code1
+```java
+class Solution {
+    // 所有的nsum都可以化解为2sum问题，递归的思想，ksum 变成k-1sum
+    int len = 0;
+    public List<List<Integer>> fourSum(int[] nums, int target) {
+        len = nums.length;
+        Arrays.sort(nums);
+        return kSum(nums, target, 4, 0);
+    }
+    
+    private ArrayList<List<Integer>> kSum(int[] nums, int target, int k, int index){
+        ArrayList<List<Integer>> res = new ArrayList<List<Integer>> ();
+        if (index >= len) return res;
+        
+        if (k == 2) {
+            // 2sum
+            int i = index, j = len - 1;
+            while (i < j) {
+                if (target - nums[i] == nums[j]) {
+                    List<Integer> tmp = new ArrayList<> ();
+                    tmp.add(nums[i]);
+                    tmp.add(nums[j]);
+                    res.add(tmp);
+                    
+                    // 过滤重复
+                    while(i < j && nums[i] == nums[i+1]) i++;
+                    while(i < j && nums[j] == nums[j-1]) j--;
+                    
+                    i++;
+                    j--;
+                } else if (target - nums[i] > nums[j]) {
+                    i++;
+                } else {
+                    j--;
+                }
+            }
+        } else {
+            // k > 2
+            for (int i = index; i < len - k + 1; i++) {
+                ArrayList<List<Integer>> temp = kSum(nums, target - nums[i], k-1, i + 1);
+                // 对剩余的部分用k-1sum,会返回所有符合的k-1sum
+                if (temp != null) {
+                    for (List<Integer> t : temp) {
+                        t.add(0, nums[i]);
+                    }
+                    res.addAll(temp);
+                }
+                while (i < len - 1 && nums[i] == nums[i+1]) i++; // 因为k>2，跳过重复
+                
+                
+            }
+        }
+        
+        return res;
+        
+        
+    }
+}
+```
