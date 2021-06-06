@@ -429,7 +429,7 @@ class Solution {
 ```
 时间复杂度$n^2$,空间复杂度依赖于sort的空间复杂度，估计是$n$。
 
-## 16 3 sum closest
+## 16 3 sum closest Medium
 
 ### question
 
@@ -472,7 +472,7 @@ class Solution {
 ```
 时间复杂度$n^2$,空间复杂度依赖于sort的空间复杂度，估计是$n$。
 
-## 18 4 sum
+## 18 4 sum Medium
 
 ### question
 
@@ -537,6 +537,7 @@ class Solution {
                 // 对剩余的部分用k-1sum,会返回所有符合的k-1sum
                 if (temp != null) {
                     for (List<Integer> t : temp) {
+                        // 循环，t是temp里面的元素。
                         t.add(0, nums[i]);
                     }
                     res.addAll(temp);
@@ -553,3 +554,215 @@ class Solution {
     }
 }
 ```
+
+时间复杂度$m^{sum-1}$，空间复杂度$n$，因为创建的是list，空list当作没有。
+
+## 26 Remove Duplicates from Sorted Array Easy
+
+### question
+Given a sorted array nums, remove the duplicates in-place such that each element appears only once and returns the new length.
+
+Do not allocate extra space for another array, you must do this by modifying the input array in-place with O(1) extra memory.
+
+Clarification:
+
+Confused why the returned value is an integer but your answer is an array?
+
+Note that the input array is passed in by reference, which means a modification to the input array will be known to the caller as well.
+
+Internally you can think of this:
+
+```
+// nums is passed in by reference. (i.e., without making a copy)
+int len = removeDuplicates(nums);
+
+// any modification to nums in your function would be known by the caller.
+// using the length returned by your function, it prints the first len elements.
+for (int i = 0; i < len; i++) {
+    print(nums[i]);
+}
+```
+
+### example
+
+```
+Input: nums = [1,1,2]
+Output: 2, nums = [1,2]
+Explanation: Your function should return length = 2, with the first two elements of nums being 1 and 2 respectively. It doesn't matter what you leave beyond the returned length.
+```
+
+### code
+``` java
+class Solution {
+    public int removeDuplicates(int[] nums) {
+        int n = nums.length; 
+        if (n == 0) return 0;
+        int i = 0, j =0;
+        for (j=0; j < n; j++) {
+            if (nums[i] != nums[j]) {
+                i++;
+                nums[i] = nums[j];
+            }
+        }
+        return i + 1;
+    }
+}
+```
+
+时间复杂度$n$，空间复杂度$1$。
+
+## 27. Remove Element Easy
+
+### question
+Given an array nums and a value val, remove all instances of that value in-place and return the new length.
+
+Do not allocate extra space for another array, you must do this by modifying the input array in-place with O(1) extra memory.
+
+The order of elements can be changed. It doesn't matter what you leave beyond the new length.
+
+
+
+### example
+
+```
+Input: nums = [3,2,2,3], val = 3
+Output: 2, nums = [2,2]
+Explanation: Your function should return length = 2, with the first two elements of nums being 2.
+It doesn't matter what you leave beyond the returned length. For example if you return 2 with nums = [2,2,3,3] or nums = [2,2,0,0], your answer will be accepted.
+```
+
+### code
+```java
+class Solution {
+    public int removeElement(int[] nums, int val) {
+        int i = 0, j = 0;
+        for (j = 0; j < nums.length; j++) {
+            if (nums[j] != val) {
+                nums[i] = nums[j];
+                i++;
+            }
+        }
+        return i;
+        
+    }
+}
+
+```
+
+## 31. Next Permutation Medium
+
+### question
+
+Implement next permutation, which rearranges numbers into the lexicographically next greater permutation of numbers.
+
+If such an arrangement is not possible, it must rearrange it as the lowest possible order (i.e., sorted in ascending order).
+
+The replacement must be in place and use only constant extra memory.
+
+这我觉得到hard了，找按字典序的下一个数字。
+
+### example
+
+```
+Input: nums = [1,2,3]
+Output: [1,3,2]
+```
+
+### code
+
+```java
+class Solution {
+    public void nextPermutation(int[] nums) {
+
+        // 找到置换的位置。
+        int i = nums.length - 2;
+        while (i >= 0 && nums[i+1] <= nums[i]) i--;  // i可以到-1，需要nums[i]>nums[i-1]才行。
+        
+        if (i >= 0) {
+            // 需要置换
+            int j = nums.length - 1;
+            while (j >= 0 && nums[j] <= nums[i]) j--;
+            swap (nums, i, j);
+        }
+        // 因为i+1后面是有序的,所以用倒置就可以
+        reverse(nums, i+1);
+    }
+    
+    /**
+     * 将数组nums从i开始倒置
+     */
+    private void reverse(int[] nums, int start){
+        int i = start, j = nums.length -1;
+        while (i < j) {
+            swap(nums, i, j);
+            i++;
+            j--;
+        }
+    }
+    
+    /**
+     * 交换数组中i和j位置的值
+     */
+    private void swap(int[] nums, int i, int j) {
+        int temp = nums[i];
+        nums[i] = nums[j];
+        nums[j] = temp;
+    }
+    
+
+}
+```
+
+time $n$, space $1$.
+
+## 33. Search in Rotated Sorted Array Medium
+
+### question
+There is an integer array nums sorted in ascending order (with distinct values).
+
+Prior to being passed to your function, nums is rotated at an unknown pivot index k (0 <= k < nums.length) such that the resulting array is [nums[k], nums[k+1], ..., nums[n-1], nums[0], nums[1], ..., nums[k-1]] (0-indexed). For example, [0,1,2,4,5,6,7] might be rotated at pivot index 3 and become [4,5,6,7,0,1,2].
+
+Given the array nums after the rotation and an integer target, return the index of target if it is in nums, or -1 if it is not in nums.
+
+You must write an algorithm with O(log n) runtime complexity.
+
+### example
+
+```
+Input: nums = [4,5,6,7,0,1,2], target = 0
+Output: 4
+```
+
+### code
+```java
+class Solution {
+    public int search(int[] nums, int target) {
+        // 先找到最小的数字，确定rotated
+        int n = nums.length;
+        int i = 0, j = n-1;
+        while (i < j) {
+            int mid = (i + j) / 2;
+            if (nums[mid] > nums[j]) i = mid + 1;
+            else j = mid;
+        }
+        
+        int rotate = i;
+        
+        // 然后对数组进行二分查找
+        i = 0;
+        j = n - 1;
+        while (i <= j) {
+            // 因为不知道数组是否包含target，所以需要小于等于
+            int mid = (i + j) / 2;
+            int realMid = (mid + rotate) % n; // 这是真正中位数的位置
+            if (nums[realMid] == target) return realMid;
+            else if (nums[realMid] < target) i = mid + 1;
+            else j = mid - 1;
+        }
+        return -1;
+        
+    }
+}
+```
+
+无论是寻找rotated还是寻找真正的中位数，二分查找确保了$log(n)$的时间复杂度，realMid使用模确定真正的中位数。
